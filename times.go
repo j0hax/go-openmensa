@@ -9,8 +9,10 @@ import (
 	"time"
 )
 
+// Opening is a wrapper type for dates.
 type Opening time.Time
 
+// UnmarshalJSON parses a YYYY-MM-DD date to an Opening type.
 func (o *Opening) UnmarshalJSON(text []byte) error {
 	s := strings.Trim(string(text), "\"")
 	t, err := time.Parse("2006-01-02", string(s))
@@ -22,17 +24,21 @@ func (o *Opening) UnmarshalJSON(text []byte) error {
 	return nil
 }
 
+// String returns a human-readable representation of a canteen's opening status.
 func (o Opening) String() string {
 	t := time.Time(o)
 	return t.Format("2006-01-02")
 }
 
-// Represents opening and closing days of a canteen
+// Day represents a canteen's opening status.
 type Day struct {
-	Date   Opening `json:"date"`
-	Closed bool    `json:"closed"`
+	// Date is the given date of operation.
+	Date Opening `json:"date"`
+	// Closed indicates if the canteen is closed on the given date.
+	Closed bool `json:"closed"`
 }
 
+// String returns a human-readable representation of a canteen's opening data.
 func (d *Day) String() string {
 	var desc string
 	if d.Closed {
@@ -44,7 +50,7 @@ func (d *Day) String() string {
 	return fmt.Sprintf("%s on %s", desc, d.Date)
 }
 
-// Returns upcoming opening and closing days for a canteen
+// GetDays returns upcoming opening dates of a canteen.
 func GetDays(canteenId int) (*[]Day, error) {
 	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days", endpoint, canteenId))
 
@@ -66,7 +72,7 @@ func GetDays(canteenId int) (*[]Day, error) {
 	return &responseObject, nil
 }
 
-// Returns opening and closing day for a specific canteen and day
+// GetDay returns opening information of a given canteen on a given date.
 func GetDay(canteenId int, date string) (*Day, error) {
 	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s", endpoint, canteenId, date))
 

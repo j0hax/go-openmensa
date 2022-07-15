@@ -7,15 +7,22 @@ import (
 	"net/http"
 )
 
-// Represents a menu item
+// Meal is the representation of a canteen's menu item.
 type Meal struct {
-	Id     int                `json:"id"`
-	Name   string             `json:"name"`
-	Notes  []string           `json:"notes"`
+	// Id is a unique identifier for the meal.
+	Id int `json:"id"`
+	// Name is the title of the meal.
+	Name string `json:"name"`
+	// Notes include extra information, such as allergens.
+	Notes []string `json:"notes"`
+	// Prices vary for different groups of patrons.
+	//
+	// Note that the groups vary by canteen operator.
+	// Typically these include "students", "employees", "others", and "pupils".
 	Prices map[string]float64 `json:"prices"`
 }
 
-// Get all meal information served by a cateen on a given date
+// GetMeals returns returns all meals served by a canteen on a given date.
 func GetMeals(canteenId int, date string) (*[]Meal, error) {
 	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s/meals", endpoint, canteenId, date))
 
@@ -37,7 +44,9 @@ func GetMeals(canteenId int, date string) (*[]Meal, error) {
 	return &responseObject, nil
 }
 
-// Get specific meal information
+// GetMeal returns returns a specific meal.
+//
+// A single meal must be identified by its serving canteen, the day it is served and its ID.
 func GetMeal(canteenId int, date string, mealId int) (*Meal, error) {
 	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s/meals/%d", endpoint, canteenId, date, mealId))
 
@@ -59,6 +68,9 @@ func GetMeal(canteenId int, date string, mealId int) (*Meal, error) {
 	return &responseObject, nil
 }
 
+// String returns a human-readable representation of a meal.
+//
+// Currently, this is simply the meal's name.
 func (m Meal) String() string {
 	return m.Name
 }
