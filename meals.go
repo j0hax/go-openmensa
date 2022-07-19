@@ -22,8 +22,8 @@ type Meal struct {
 	Prices map[string]float64 `json:"prices"`
 }
 
-// GetMeals returns returns all meals served by a canteen on a given date.
-func GetMeals(canteenId int, date string) (*[]Meal, error) {
+// GetMealsOn returns returns all meals served by a canteen on a given date.
+func GetMealsOn(canteenId int, date string) (*[]Meal, error) {
 	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s/meals", endpoint, canteenId, date))
 
 	if err != nil {
@@ -44,9 +44,31 @@ func GetMeals(canteenId int, date string) (*[]Meal, error) {
 	return &responseObject, nil
 }
 
-// GetMeal returns returns a specific meal.
+// GetMeals returns returns all current meals served by a canteen on today's date.
+func GetMeals(canteenId int) (*[]Meal, error) {
+	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/meals", endpoint, canteenId))
+
+	if err != nil {
+		return nil, err
+	}
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var responseObject []Meal
+	err = json.Unmarshal(responseData, &responseObject)
+	if err != nil {
+		return nil, err
+	}
+
+	return &responseObject, nil
+}
+
+// GetMeal returns a specific meal.
 //
-// A single meal must be identified by its serving canteen, the day it is served and its ID.
+// A single meal is identified by its serving canteen, the day it is served on and its ID.
 func GetMeal(canteenId int, date string, mealId int) (*Meal, error) {
 	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s/meals/%d", endpoint, canteenId, date, mealId))
 
