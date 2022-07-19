@@ -51,7 +51,7 @@ func (d *Day) String() string {
 }
 
 // GetDays returns upcoming opening dates of a canteen.
-func GetDays(canteenId int) (*[]Day, error) {
+func GetDays(canteenId int) ([]Day, error) {
 	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days", endpoint, canteenId))
 
 	if err != nil {
@@ -69,7 +69,7 @@ func GetDays(canteenId int) (*[]Day, error) {
 		return nil, err
 	}
 
-	return &responseObject, nil
+	return responseObject, nil
 }
 
 // GetDay returns opening information of a given canteen on a given date.

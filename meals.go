@@ -23,7 +23,7 @@ type Meal struct {
 }
 
 // GetMealsOn returns returns all meals served by a canteen on a given date.
-func GetMealsOn(canteenId int, date string) (*[]Meal, error) {
+func GetMealsOn(canteenId int, date string) ([]Meal, error) {
 	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s/meals", endpoint, canteenId, date))
 
 	if err != nil {
@@ -41,11 +41,11 @@ func GetMealsOn(canteenId int, date string) (*[]Meal, error) {
 		return nil, err
 	}
 
-	return &responseObject, nil
+	return responseObject, nil
 }
 
 // GetMeals returns returns all current meals served by a canteen on today's date.
-func GetMeals(canteenId int) (*[]Meal, error) {
+func GetMeals(canteenId int) ([]Meal, error) {
 	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/meals", endpoint, canteenId))
 
 	if err != nil {
@@ -63,7 +63,7 @@ func GetMeals(canteenId int) (*[]Meal, error) {
 		return nil, err
 	}
 
-	return &responseObject, nil
+	return responseObject, nil
 }
 
 // GetMeal returns a specific meal.

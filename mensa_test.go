@@ -10,7 +10,7 @@ func TestAllCantines(t *testing.T) {
 		t.Error("Could not retrieve information for canteens")
 	}
 
-	amount := len(*canteens)
+	amount := len(canteens)
 
 	t.Logf("Retrieved data for %d canteens", amount)
 }

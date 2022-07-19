@@ -29,7 +29,7 @@ func (m Canteen) String() string {
 }
 
 // GetCanteens returns a list of all canteens and their metadata.
-func GetCanteens() (*[]Canteen, error) {
+func GetCanteens() ([]Canteen, error) {
 	response, err := http.Get(fmt.Sprintf("%s/canteens", endpoint))
 
 	if err != nil {
@@ -47,7 +47,7 @@ func GetCanteens() (*[]Canteen, error) {
 		return nil, err
 	}
 
-	return &responseObject, nil
+	return responseObject, nil
 }
 
 // GetCanteen returns data about a specific canteen.
