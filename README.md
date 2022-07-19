@@ -1,5 +1,6 @@
 # go-openmensa
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/j0hax/go-openmensa.svg)](https://pkg.go.dev/github.com/j0hax/go-openmensa)
 [![Go Report Card](https://goreportcard.com/badge/github.com/j0hax/go-openmensa)](https://goreportcard.com/report/github.com/j0hax/go-openmensa)
 
 Go API for OpenMensa
