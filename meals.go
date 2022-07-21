@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 // Meal is the representation of a canteen's menu item.
@@ -46,7 +47,9 @@ func GetMealsOn(canteenId int, date string) ([]Meal, error) {
 
 // GetMeals returns returns all current meals served by a canteen on today's date.
 func GetMeals(canteenId int) ([]Meal, error) {
-	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/meals", endpoint, canteenId))
+	date := time.Now().Format("2006-01-02")
+
+	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s/meals", endpoint, canteenId, date))
 
 	if err != nil {
 		return nil, err
