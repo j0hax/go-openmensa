@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"golang.org/x/exp/slices"
 )
 
 // Meal is the representation of a canteen's menu item.
@@ -67,6 +69,28 @@ func GetMeals(canteenId int) ([]Meal, error) {
 	}
 
 	return responseObject, nil
+}
+
+// GetNextMeals gets all meals served by a canteen on the next opening date.
+func GetNextMeals(canteenId int) ([]Meal, *Day, error) {
+	// Get the opening dates
+	days, err := GetDays(canteenId)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	i := slices.IndexFunc(days, func(d Day) bool {
+		return !d.Closed
+	})
+
+	firstOpening := days[i]
+
+	meals, err := GetMealsOn(canteenId, firstOpening.Date.String())
+	if err != nil {
+		return nil, &firstOpening, err
+	}
+
+	return meals, &firstOpening, nil
 }
 
 // GetMeal returns a specific meal.
