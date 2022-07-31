@@ -2,6 +2,7 @@ package openmensa
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -82,6 +83,10 @@ func GetNextMeals(canteenId int) ([]Meal, *Day, error) {
 	i := slices.IndexFunc(days, func(d Day) bool {
 		return !d.Closed
 	})
+
+	if i < 0 {
+		return nil, nil, errors.New("canteen is closed on all upcoming days")
+	}
 
 	firstOpening := days[i]
 
