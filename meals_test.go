@@ -5,10 +5,12 @@ import (
 )
 
 func TestMeals(t *testing.T) {
-	meals, err := GetMeals(7)
+	meals, day, err := GetNextMeals(7)
 	if err != nil {
 		t.Error(err)
 	}
+
+	t.Logf("Next opening day: %s\n", day.Date)
 
 	for _, m := range meals {
 		// Ensure our meal isn't empty
