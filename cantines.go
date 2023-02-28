@@ -1,13 +1,10 @@
 package openmensa
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"regexp"
+	"strconv"
 
 	"golang.org/x/exp/slices"
 )
@@ -35,53 +32,22 @@ func (m Canteen) String() string {
 
 // GetCanteens returns a list of all canteens and their metadata.
 func GetCanteens() ([]Canteen, error) {
-	response, err := http.Get(fmt.Sprintf("%s/canteens", endpoint))
-
-	if err != nil {
-		return nil, err
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var responseObject []Canteen
-	err = json.Unmarshal(responseData, &responseObject)
-	if err != nil {
-		return nil, err
-	}
-
-	return responseObject, nil
+	err := GetUnmarshal(&responseObject, "canteens")
+	return responseObject, err
 }
 
 // GetCanteen returns data about a specific canteen.
 func GetCanteen(canteenId int) (*Canteen, error) {
-	response, err := http.Get(fmt.Sprintf("%s/canteens/%d", endpoint, canteenId))
-
-	if err != nil {
-		return nil, err
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var responseObject Canteen
-	err = json.Unmarshal(responseData, &responseObject)
-	if err != nil {
-		return nil, err
-	}
-
-	return &responseObject, nil
+	err := GetUnmarshal(&responseObject, "canteens", strconv.Itoa(canteenId))
+	return &responseObject, err
 }
 
 // FindCanteen searches the list of canteens and return the first canteen
 // whose name matches the specified pattern
 func FindCanteen(pattern string) (*Canteen, error) {
 	canteens, err := GetCanteens()
-
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +62,7 @@ func FindCanteen(pattern string) (*Canteen, error) {
 	})
 
 	if i < 0 {
-		return nil, errors.New("No matching canteen found")
+		return nil, errors.New("no matching canteen found")
 	}
 
 	return &(canteens[i]), nil

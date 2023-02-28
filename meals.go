@@ -1,11 +1,8 @@
 package openmensa
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
-	"net/http"
+	"strconv"
 	"time"
 
 	"golang.org/x/exp/slices"
@@ -28,48 +25,16 @@ type Meal struct {
 
 // GetMealsOn returns returns all meals served by a canteen on a given date.
 func GetMealsOn(canteenId int, date string) ([]Meal, error) {
-	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s/meals", endpoint, canteenId, date))
-
-	if err != nil {
-		return nil, err
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var responseObject []Meal
-	err = json.Unmarshal(responseData, &responseObject)
-	if err != nil {
-		return nil, err
-	}
-
-	return responseObject, nil
+	cid := strconv.Itoa(canteenId)
+	err := GetUnmarshal(&responseObject, "canteens", cid, "days", date, "meals")
+	return responseObject, err
 }
 
 // GetMeals returns returns all current meals served by a canteen on today's date.
 func GetMeals(canteenId int) ([]Meal, error) {
 	date := time.Now().Format("2006-01-02")
-
-	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s/meals", endpoint, canteenId, date))
-
-	if err != nil {
-		return nil, err
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var responseObject []Meal
-	err = json.Unmarshal(responseData, &responseObject)
-	if err != nil {
-		return nil, err
-	}
-
-	return responseObject, nil
+	return GetMealsOn(canteenId, date)
 }
 
 // GetNextMeals gets all meals served by a canteen on the next opening date.
@@ -102,24 +67,11 @@ func GetNextMeals(canteenId int) ([]Meal, *Day, error) {
 //
 // A single meal is identified by its serving canteen, the day it is served on and its ID.
 func GetMeal(canteenId int, date string, mealId int) (*Meal, error) {
-	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s/meals/%d", endpoint, canteenId, date, mealId))
-
-	if err != nil {
-		return nil, err
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var responseObject Meal
-	err = json.Unmarshal(responseData, &responseObject)
-	if err != nil {
-		return nil, err
-	}
-
-	return &responseObject, nil
+	cid := strconv.Itoa(canteenId)
+	mid := strconv.Itoa(canteenId)
+	err := GetUnmarshal(&responseObject, "canteens", cid, "days", date, "meals", mid)
+	return &responseObject, err
 }
 
 // String returns a human-readable representation of a meal.
