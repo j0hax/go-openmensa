@@ -1,10 +1,8 @@
 package openmensa
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -52,44 +50,16 @@ func (d *Day) String() string {
 
 // GetDays returns upcoming opening dates of a canteen.
 func GetDays(canteenId int) ([]Day, error) {
-	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days", endpoint, canteenId))
-
-	if err != nil {
-		return nil, err
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var responseObject []Day
-	err = json.Unmarshal(responseData, &responseObject)
-	if err != nil {
-		return nil, err
-	}
-
-	return responseObject, nil
+	cid := strconv.Itoa(canteenId)
+	err := GetUnmarshal(&responseObject, "canteens", cid, "days")
+	return responseObject, err
 }
 
 // GetDay returns opening information of a given canteen on a given date.
 func GetDay(canteenId int, date string) (*Day, error) {
-	response, err := http.Get(fmt.Sprintf("%s/canteens/%d/days/%s", endpoint, canteenId, date))
-
-	if err != nil {
-		return nil, err
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var responseObject Day
-	err = json.Unmarshal(responseData, &responseObject)
-	if err != nil {
-		return nil, err
-	}
-
-	return &responseObject, nil
+	cid := strconv.Itoa(canteenId)
+	err := GetUnmarshal(&responseObject, "canteens", cid, "days", date)
+	return &responseObject, err
 }
