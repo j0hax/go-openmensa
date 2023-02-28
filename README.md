@@ -21,28 +21,25 @@ Following code snippet fetches today's menu and prices for a cafeteria in Hannov
 package main
 
 import (
-	"fmt"
-	"log"
-	"time"
+        "fmt"
+        "log"
 
-	"github.com/j0hax/go-openmensa"
+        "github.com/j0hax/go-openmensa"
 )
 
 // openmensa.org ID for Contine Hannover
 const contine = 7
 
 func main() {
-	date := time.Now().Format("2006-01-02")
+        menu, err := openmensa.GetMeals(contine)
 
-	menu, err := openmensa.GetMeals(contine, date)
+        if err != nil {
+                log.Fatal(err)
+        }
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, meal := range *menu {
-		price := meal.Prices["students"]
-		fmt.Printf("- %s (%0.2f€)\n", meal, price)
-	}
+        for _, meal := range menu {
+                price := meal.Prices["students"]
+                fmt.Printf("- %s (%0.2f€)\n", meal, price)
+        }
 }
 ```
