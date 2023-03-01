@@ -3,6 +3,7 @@ package openmensa
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/url"
 	"regexp"
@@ -65,6 +66,50 @@ func AllCanteens() ([]Canteen, error) {
 	}
 
 	return allCanteens, nil
+}
+
+// CanteensNear returns canteens in the radius of the given latitude and longitude
+func CanteensNear(latitude, longitude, distance float64) ([]Canteen, error) {
+	q := url.Values{}
+
+	lat := fmt.Sprintf("%f", latitude)
+	lng := fmt.Sprintf("%f", longitude)
+	dist := fmt.Sprintf("%f", distance)
+
+	q.Set("near[lat]", lat)
+	q.Set("near[lng]", lng)
+	q.Set("near[dist]", dist)
+
+	page := 1
+
+	var nearby []Canteen
+
+	// Repeatedly query the next page until none are returned
+	for {
+		q.Set("page", strconv.Itoa(page))
+		var canteens []Canteen
+
+		// Grab data with custom page query and unmarshal it
+		data, err := get(q, "canteens")
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(data, &canteens)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(canteens) == 0 {
+			break
+		}
+
+		// Save and continue to next page
+		page = page + 1
+		nearby = append(nearby, canteens...)
+	}
+
+	return nearby, nil
 }
 
 // GetCanteen returns data about a specific canteen.
