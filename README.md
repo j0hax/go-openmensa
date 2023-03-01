@@ -34,7 +34,7 @@ func main() {
         }
 
         // Retrieve the current menu
-        menu, err := contine.GetMeals()
+        menu, err := contine.CurrentMeals()
         if err != nil {
                 log.Fatal(err)
         }
@@ -48,3 +48,8 @@ func main() {
         }
 }
 ```
+
+## See Also
+
+* OpenMensa's official [API Documentation](https://docs.openmensa.org/)
+* [kiliankoe/openmensa](https://github.com/kiliankoe/openmensa), which I only discovered long after starting this project. It appears to be unmaintained.
