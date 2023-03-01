@@ -24,16 +24,17 @@ type Meal struct {
 }
 
 // GetMealsOn returns returns all meals served by a canteen on a given date.
-func GetMealsOn(canteenId int, date string) ([]Meal, error) {
+func GetMealsOn(canteenId int, date time.Time) ([]Meal, error) {
+	strDate := date.Format("2006-01-02")
 	var responseObject []Meal
 	cid := strconv.Itoa(canteenId)
-	err := getUnmarshal(&responseObject, "canteens", cid, "days", date, "meals")
+	err := getUnmarshal(&responseObject, "canteens", cid, "days", strDate, "meals")
 	return responseObject, err
 }
 
 // GetMeals returns returns all current meals served by a canteen on today's date.
 func GetMeals(canteenId int) ([]Meal, error) {
-	date := time.Now().Format("2006-01-02")
+	date := time.Now()
 	return GetMealsOn(canteenId, date)
 }
 
@@ -54,8 +55,9 @@ func GetNextMeals(canteenId int) ([]Meal, *Day, error) {
 	}
 
 	firstOpening := days[i]
+	openingDate := time.Time(firstOpening.Date)
 
-	meals, err := GetMealsOn(canteenId, firstOpening.Date.String())
+	meals, err := GetMealsOn(canteenId, openingDate)
 	if err != nil {
 		return nil, &firstOpening, err
 	}
@@ -66,11 +68,12 @@ func GetNextMeals(canteenId int) ([]Meal, *Day, error) {
 // GetMeal returns a specific meal.
 //
 // A single meal is identified by its serving canteen, the day it is served on and its ID.
-func GetMeal(canteenId int, date string, mealId int) (*Meal, error) {
+func GetMeal(canteenId int, date time.Time, mealId int) (*Meal, error) {
+	strDate := date.Format("2006-01-02")
 	var responseObject Meal
 	cid := strconv.Itoa(canteenId)
 	mid := strconv.Itoa(canteenId)
-	err := getUnmarshal(&responseObject, "canteens", cid, "days", date, "meals", mid)
+	err := getUnmarshal(&responseObject, "canteens", cid, "days", strDate, "meals", mid)
 	return &responseObject, err
 }
 
