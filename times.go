@@ -48,18 +48,19 @@ func (d *Day) String() string {
 	return fmt.Sprintf("%s on %s", desc, d.Date)
 }
 
-// GetDays returns upcoming opening dates of a canteen.
-func (c Canteen) GetDays() ([]Day, error) {
+// Days returns upcoming open/closed dates of a canteen.
+func (c Canteen) Days() ([]Day, error) {
 	var responseObject []Day
 	cid := strconv.Itoa(c.Id)
 	err := getUnmarshal(&responseObject, "canteens", cid, "days")
 	return responseObject, err
 }
 
-// GetDay returns opening information of a given canteen on a given date.
-func (c Canteen) GetDay(date string) (*Day, error) {
+// GetDay returns specific opening information of a given canteen on a given date.
+func (c Canteen) Day(date time.Time) (*Day, error) {
 	var responseObject Day
+	strDate := date.Format("2006-01-02")
 	cid := strconv.Itoa(c.Id)
-	err := getUnmarshal(&responseObject, "canteens", cid, "days", date)
+	err := getUnmarshal(&responseObject, "canteens", cid, "days", strDate)
 	return &responseObject, err
 }

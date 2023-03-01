@@ -10,7 +10,7 @@ func TestMeals(t *testing.T) {
 		t.Error(err)
 	}
 
-	meals, day, err := contine.GetNextMeals()
+	meals, day, err := contine.UpcomingMeals()
 	if err != nil {
 		t.Error(err)
 	}
