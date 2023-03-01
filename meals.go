@@ -23,8 +23,8 @@ type Meal struct {
 	Prices map[string]float64 `json:"prices"`
 }
 
-// GetMealsOn returns returns all meals served by a canteen on a given date.
-func (c Canteen) GetMealsOn(date time.Time) ([]Meal, error) {
+// MealsOn returns returns all meals served by a canteen on a given date.
+func (c Canteen) MealsOn(date time.Time) ([]Meal, error) {
 	strDate := date.Format("2006-01-02")
 	var responseObject []Meal
 	cid := strconv.Itoa(c.Id)
@@ -32,16 +32,16 @@ func (c Canteen) GetMealsOn(date time.Time) ([]Meal, error) {
 	return responseObject, err
 }
 
-// GetMeals returns returns all current meals served by a canteen on today's date.
-func (c Canteen) GetMeals() ([]Meal, error) {
+// CurrentMeals returns returns all meals served by a canteen on today's date.
+func (c Canteen) CurrentMeals() ([]Meal, error) {
 	date := time.Now()
-	return c.GetMealsOn(date)
+	return c.MealsOn(date)
 }
 
-// GetNextMeals gets all meals served by a canteen on the next opening date.
-func (c Canteen) GetNextMeals() ([]Meal, *Day, error) {
+// UpcomingMeals returns all meals served by a canteen on the next opening date.
+func (c Canteen) UpcomingMeals() ([]Meal, *Day, error) {
 	// Get the opening dates
-	days, err := c.GetDays()
+	days, err := c.Days()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -57,7 +57,7 @@ func (c Canteen) GetNextMeals() ([]Meal, *Day, error) {
 	firstOpening := days[i]
 	openingDate := time.Time(firstOpening.Date)
 
-	meals, err := c.GetMealsOn(openingDate)
+	meals, err := c.MealsOn(openingDate)
 	if err != nil {
 		return nil, &firstOpening, err
 	}
@@ -65,10 +65,10 @@ func (c Canteen) GetNextMeals() ([]Meal, *Day, error) {
 	return meals, &firstOpening, nil
 }
 
-// GetMeal returns a specific meal.
+// Meal returns a specific meal.
 //
-// A single meal is identified by its serving canteen, the day it is served on and its ID.
-func (c Canteen) GetMeal(date time.Time, mealId int) (*Meal, error) {
+// A single meal is identified by the day it is served on and its ID.
+func (c Canteen) Meal(date time.Time, mealId int) (*Meal, error) {
 	strDate := date.Format("2006-01-02")
 	var responseObject Meal
 	cid := strconv.Itoa(c.Id)
