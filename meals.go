@@ -24,23 +24,24 @@ type Meal struct {
 }
 
 // GetMealsOn returns returns all meals served by a canteen on a given date.
-func GetMealsOn(canteenId int, date string) ([]Meal, error) {
+func (c Canteen) GetMealsOn(date time.Time) ([]Meal, error) {
+	strDate := date.Format("2006-01-02")
 	var responseObject []Meal
-	cid := strconv.Itoa(canteenId)
-	err := getUnmarshal(&responseObject, "canteens", cid, "days", date, "meals")
+	cid := strconv.Itoa(c.Id)
+	err := getUnmarshal(&responseObject, "canteens", cid, "days", strDate, "meals")
 	return responseObject, err
 }
 
 // GetMeals returns returns all current meals served by a canteen on today's date.
-func GetMeals(canteenId int) ([]Meal, error) {
-	date := time.Now().Format("2006-01-02")
-	return GetMealsOn(canteenId, date)
+func (c Canteen) GetMeals() ([]Meal, error) {
+	date := time.Now()
+	return c.GetMealsOn(date)
 }
 
 // GetNextMeals gets all meals served by a canteen on the next opening date.
-func GetNextMeals(canteenId int) ([]Meal, *Day, error) {
+func (c Canteen) GetNextMeals() ([]Meal, *Day, error) {
 	// Get the opening dates
-	days, err := GetDays(canteenId)
+	days, err := c.GetDays()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -54,8 +55,9 @@ func GetNextMeals(canteenId int) ([]Meal, *Day, error) {
 	}
 
 	firstOpening := days[i]
+	openingDate := time.Time(firstOpening.Date)
 
-	meals, err := GetMealsOn(canteenId, firstOpening.Date.String())
+	meals, err := c.GetMealsOn(openingDate)
 	if err != nil {
 		return nil, &firstOpening, err
 	}
@@ -66,11 +68,12 @@ func GetNextMeals(canteenId int) ([]Meal, *Day, error) {
 // GetMeal returns a specific meal.
 //
 // A single meal is identified by its serving canteen, the day it is served on and its ID.
-func GetMeal(canteenId int, date string, mealId int) (*Meal, error) {
+func (c Canteen) GetMeal(date time.Time, mealId int) (*Meal, error) {
+	strDate := date.Format("2006-01-02")
 	var responseObject Meal
-	cid := strconv.Itoa(canteenId)
-	mid := strconv.Itoa(canteenId)
-	err := getUnmarshal(&responseObject, "canteens", cid, "days", date, "meals", mid)
+	cid := strconv.Itoa(c.Id)
+	mid := strconv.Itoa(mealId)
+	err := getUnmarshal(&responseObject, "canteens", cid, "days", strDate, "meals", mid)
 	return &responseObject, err
 }
 

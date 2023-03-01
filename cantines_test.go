@@ -5,7 +5,7 @@ import (
 )
 
 func TestAllCantines(t *testing.T) {
-	canteens, err := GetCanteens()
+	canteens, err := AllCanteens()
 	if err != nil {
 		t.Error("Could not retrieve information for canteens")
 	}
