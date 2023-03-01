@@ -1,8 +1,10 @@
 package openmensa
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
+	"net/url"
 	"regexp"
 	"strconv"
 
@@ -32,15 +34,43 @@ func (m Canteen) String() string {
 
 // GetCanteens returns a list of all canteens and their metadata.
 func GetCanteens() ([]Canteen, error) {
-	var responseObject []Canteen
-	err := GetUnmarshal(&responseObject, "canteens")
-	return responseObject, err
+	q := url.Values{}
+	page := 1
+
+	var allCanteens []Canteen
+
+	// Repeatedly query the next page until none are returned
+	for {
+		q.Set("page", strconv.Itoa(page))
+		var canteens []Canteen
+
+		// Grab data with custom page query and unmarshal it
+		data, err := get(q, "canteens")
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(data, &canteens)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(canteens) == 0 {
+			break
+		}
+
+		// Save and continue to next page
+		page = page + 1
+		allCanteens = append(allCanteens, canteens...)
+	}
+
+	return allCanteens, nil
 }
 
 // GetCanteen returns data about a specific canteen.
 func GetCanteen(canteenId int) (*Canteen, error) {
 	var responseObject Canteen
-	err := GetUnmarshal(&responseObject, "canteens", strconv.Itoa(canteenId))
+	err := getUnmarshal(&responseObject, "canteens", strconv.Itoa(canteenId))
 	return &responseObject, err
 }
 

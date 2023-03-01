@@ -9,8 +9,8 @@ import (
 	"time"
 )
 
-// API endpoint
-const endpoint = "https://openmensa.org/api/v2"
+// API endpoint URL
+var Endpoint = "https://openmensa.org/api/v2"
 
 // API User Endpoint
 const defaultUserAgent = "go-openmensa/0.3"
@@ -18,15 +18,24 @@ const defaultUserAgent = "go-openmensa/0.3"
 // The client to use for HTTP requests
 var c = http.Client{Timeout: time.Second * 10}
 
-// Function Get is a wrapper for http.Get(),
-// using the predifined endpoint and custom headers.
-func Get(elem ...string) ([]byte, error) {
-	url, err := url.JoinPath(endpoint, elem...)
+// get is a wrapper for http.Get(), using the predifined endpoint and custom headers.
+func get(query url.Values, elem ...string) ([]byte, error) {
+
+	path, err := url.JoinPath(Endpoint, elem...)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
+	url, err := url.Parse(path)
+	if err != nil {
+		return nil, err
+	}
+
+	if query != nil {
+		url.RawQuery = query.Encode()
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -47,10 +56,10 @@ func Get(elem ...string) ([]byte, error) {
 	return data, nil
 }
 
-// Function GetUnmarshal GETs JSON data at the endpoint and unmarshals it into v
-func GetUnmarshal(v any, elem ...string) error {
+// getUnmarshal GETs JSON data at the endpoint and unmarshals it into v
+func getUnmarshal(v any, elem ...string) error {
 	// Grab the data
-	data, err := Get(elem...)
+	data, err := get(nil, elem...)
 	if err != nil {
 		return err
 	}

@@ -52,7 +52,7 @@ func (d *Day) String() string {
 func GetDays(canteenId int) ([]Day, error) {
 	var responseObject []Day
 	cid := strconv.Itoa(canteenId)
-	err := GetUnmarshal(&responseObject, "canteens", cid, "days")
+	err := getUnmarshal(&responseObject, "canteens", cid, "days")
 	return responseObject, err
 }
 
@@ -60,6 +60,6 @@ func GetDays(canteenId int) ([]Day, error) {
 func GetDay(canteenId int, date string) (*Day, error) {
 	var responseObject Day
 	cid := strconv.Itoa(canteenId)
-	err := GetUnmarshal(&responseObject, "canteens", cid, "days", date)
+	err := getUnmarshal(&responseObject, "canteens", cid, "days", date)
 	return &responseObject, err
 }
