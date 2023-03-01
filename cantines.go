@@ -74,6 +74,21 @@ func GetCanteen(canteenId int) (*Canteen, error) {
 	return &responseObject, err
 }
 
+// GetCanteens retrieves multiple canteens specified by their IDs.
+func GetCanteens(canteenIds ...int) ([]Canteen, error) {
+	var canteens []Canteen
+	for _, id := range canteenIds {
+		canteen, err := GetCanteen(id)
+		if err != nil {
+			return nil, err
+		}
+
+		canteens = append(canteens, *canteen)
+	}
+
+	return canteens, nil
+}
+
 // FindCanteen searches the list of canteens and return the first canteen
 // whose name matches the specified pattern
 func FindCanteen(pattern string) (*Canteen, error) {
