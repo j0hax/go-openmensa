@@ -32,8 +32,8 @@ func (m Canteen) String() string {
 	return m.Name
 }
 
-// GetCanteens returns a list of all canteens and their metadata.
-func GetCanteens() ([]Canteen, error) {
+// AllCanteens returns a list of all canteens and their metadata.
+func AllCanteens() ([]Canteen, error) {
 	q := url.Values{}
 	page := 1
 
@@ -77,7 +77,7 @@ func GetCanteen(canteenId int) (*Canteen, error) {
 // FindCanteen searches the list of canteens and return the first canteen
 // whose name matches the specified pattern
 func FindCanteen(pattern string) (*Canteen, error) {
-	canteens, err := GetCanteens()
+	canteens, err := AllCanteens()
 	if err != nil {
 		return nil, err
 	}
