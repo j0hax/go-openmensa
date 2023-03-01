@@ -15,35 +15,15 @@ func TestAllCanteens(t *testing.T) {
 	t.Logf("Retrieved data for %d canteens", amount)
 }
 
-func matchesID(c *Canteen, expected int, t *testing.T) {
-	if c == nil {
-		t.Fatal("Canteen is nil pointer")
-	}
-
-	if c.Id != expected {
-		t.Errorf("Got Canteen with ID %d, expected %d", c.Id, expected)
-	}
-}
-
-func TestFindCanteen(t *testing.T) {
-	const (
-		contineID = 7
-		garbsenID = 8
-	)
-
-	c, err := FindCanteen(`Contine`)
+func TestSearchCanteens(t *testing.T) {
+	canteens, err := SearchCanteens("Hannover")
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
-	matchesID(c, contineID, t)
-
-	c, err = FindCanteen(`Mensa PZH`)
-	if err != nil {
-		t.Fatal(err)
+	for i, c := range canteens {
+		t.Logf("%d: %s", i+1, c)
 	}
-
-	matchesID(c, garbsenID, t)
 }
 
 func TestLocalCanteens(t *testing.T) {
