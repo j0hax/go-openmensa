@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestAllCantines(t *testing.T) {
+func TestAllCanteens(t *testing.T) {
 	canteens, err := AllCanteens()
 	if err != nil {
 		t.Error("Could not retrieve information for canteens")
@@ -17,7 +17,7 @@ func TestAllCantines(t *testing.T) {
 
 func matchesID(c *Canteen, expected int, t *testing.T) {
 	if c == nil {
-		t.Fatal("Cantine is nil pointer")
+		t.Fatal("Canteen is nil pointer")
 	}
 
 	if c.Id != expected {
