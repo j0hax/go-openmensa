@@ -20,7 +20,7 @@ var c = http.Client{Timeout: time.Second * 10}
 
 // Function Get is a wrapper for http.Get(),
 // using the predifined endpoint and custom headers.
-func Get(elem ...string) ([]byte, error) {
+func Get(query url.Values, elem ...string) ([]byte, error) {
 
 	path, err := url.JoinPath(Endpoint, elem...)
 	if err != nil {
@@ -30,6 +30,10 @@ func Get(elem ...string) ([]byte, error) {
 	url, err := url.Parse(path)
 	if err != nil {
 		return nil, err
+	}
+
+	if query != nil {
+		url.RawQuery = query.Encode()
 	}
 
 	req, err := http.NewRequest("GET", url.String(), nil)
@@ -56,7 +60,7 @@ func Get(elem ...string) ([]byte, error) {
 // Function GetUnmarshal GETs JSON data at the endpoint and unmarshals it into v
 func GetUnmarshal(v any, elem ...string) error {
 	// Grab the data
-	data, err := Get(elem...)
+	data, err := Get(nil, elem...)
 	if err != nil {
 		return err
 	}
