@@ -9,8 +9,8 @@ import (
 	"time"
 )
 
-// API endpoint
-const endpoint = "https://openmensa.org/api/v2"
+// API endpoint URL
+var Endpoint = "https://openmensa.org/api/v2"
 
 // API User Endpoint
 const defaultUserAgent = "go-openmensa/0.3"
@@ -21,12 +21,18 @@ var c = http.Client{Timeout: time.Second * 10}
 // Function Get is a wrapper for http.Get(),
 // using the predifined endpoint and custom headers.
 func Get(elem ...string) ([]byte, error) {
-	url, err := url.JoinPath(endpoint, elem...)
+
+	path, err := url.JoinPath(Endpoint, elem...)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
+	url, err := url.Parse(path)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
 	if err != nil {
 		return nil, err
 	}
