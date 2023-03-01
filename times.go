@@ -49,17 +49,17 @@ func (d *Day) String() string {
 }
 
 // GetDays returns upcoming opening dates of a canteen.
-func GetDays(canteenId int) ([]Day, error) {
+func (c Canteen) GetDays() ([]Day, error) {
 	var responseObject []Day
-	cid := strconv.Itoa(canteenId)
+	cid := strconv.Itoa(c.Id)
 	err := getUnmarshal(&responseObject, "canteens", cid, "days")
 	return responseObject, err
 }
 
 // GetDay returns opening information of a given canteen on a given date.
-func GetDay(canteenId int, date string) (*Day, error) {
+func (c Canteen) GetDay(date string) (*Day, error) {
 	var responseObject Day
-	cid := strconv.Itoa(canteenId)
+	cid := strconv.Itoa(c.Id)
 	err := getUnmarshal(&responseObject, "canteens", cid, "days", date)
 	return &responseObject, err
 }

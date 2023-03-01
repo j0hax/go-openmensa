@@ -5,7 +5,12 @@ import (
 )
 
 func TestMeals(t *testing.T) {
-	meals, day, err := GetNextMeals(7)
+	contine, err := GetCanteen(7)
+	if err != nil {
+		t.Error(err)
+	}
+
+	meals, day, err := contine.GetNextMeals()
 	if err != nil {
 		t.Error(err)
 	}
