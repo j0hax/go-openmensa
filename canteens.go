@@ -2,14 +2,10 @@ package openmensa
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"regexp"
 	"strconv"
-
-	"golang.org/x/exp/slices"
 )
 
 // Canteen contains information associated with a specific canteen, cafe, cafeteria, etc.
@@ -134,26 +130,25 @@ func GetCanteens(canteenIds ...int) ([]Canteen, error) {
 	return canteens, nil
 }
 
-// FindCanteen searches the list of canteens and return the first canteen
-// whose name matches the specified pattern
-func FindCanteen(pattern string) (*Canteen, error) {
-	canteens, err := AllCanteens()
+// SearchCanteens returns a slice of canteens whose names match the given pattern
+func SearchCanteens(pattern string) ([]Canteen, error) {
+	all, err := AllCanteens()
 	if err != nil {
 		return nil, err
 	}
 
-	i := slices.IndexFunc(canteens, func(c Canteen) bool {
+	var matches []Canteen
+
+	for _, c := range all {
 		matched, err := regexp.MatchString(pattern, c.Name)
 		if err != nil {
-			log.Panic(err)
-			return false
+			return nil, err
 		}
-		return matched
-	})
 
-	if i < 0 {
-		return nil, errors.New("no matching canteen found")
+		if matched {
+			matches = append(matches, c)
+		}
 	}
 
-	return &(canteens[i]), nil
+	return matches, nil
 }
