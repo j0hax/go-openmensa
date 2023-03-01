@@ -40,7 +40,7 @@ func GetCanteens() ([]Canteen, error) {
 // GetCanteen returns data about a specific canteen.
 func GetCanteen(canteenId int) (*Canteen, error) {
 	var responseObject Canteen
-	err := GetUnmarshal(&responseObject, "canteens", strconv.Itoa(canteenId))
+	err := getUnmarshal(&responseObject, "canteens", strconv.Itoa(canteenId))
 	return &responseObject, err
 }
 

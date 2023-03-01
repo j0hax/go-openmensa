@@ -18,9 +18,8 @@ const defaultUserAgent = "go-openmensa/0.3"
 // The client to use for HTTP requests
 var c = http.Client{Timeout: time.Second * 10}
 
-// Function Get is a wrapper for http.Get(),
-// using the predifined endpoint and custom headers.
-func Get(query url.Values, elem ...string) ([]byte, error) {
+// get is a wrapper for http.Get(), using the predifined endpoint and custom headers.
+func get(query url.Values, elem ...string) ([]byte, error) {
 
 	path, err := url.JoinPath(Endpoint, elem...)
 	if err != nil {
@@ -57,10 +56,10 @@ func Get(query url.Values, elem ...string) ([]byte, error) {
 	return data, nil
 }
 
-// Function GetUnmarshal GETs JSON data at the endpoint and unmarshals it into v
-func GetUnmarshal(v any, elem ...string) error {
+// getUnmarshal GETs JSON data at the endpoint and unmarshals it into v
+func getUnmarshal(v any, elem ...string) error {
 	// Grab the data
-	data, err := Get(nil, elem...)
+	data, err := get(nil, elem...)
 	if err != nil {
 		return err
 	}

@@ -27,7 +27,7 @@ type Meal struct {
 func GetMealsOn(canteenId int, date string) ([]Meal, error) {
 	var responseObject []Meal
 	cid := strconv.Itoa(canteenId)
-	err := GetUnmarshal(&responseObject, "canteens", cid, "days", date, "meals")
+	err := getUnmarshal(&responseObject, "canteens", cid, "days", date, "meals")
 	return responseObject, err
 }
 
@@ -70,7 +70,7 @@ func GetMeal(canteenId int, date string, mealId int) (*Meal, error) {
 	var responseObject Meal
 	cid := strconv.Itoa(canteenId)
 	mid := strconv.Itoa(canteenId)
-	err := GetUnmarshal(&responseObject, "canteens", cid, "days", date, "meals", mid)
+	err := getUnmarshal(&responseObject, "canteens", cid, "days", date, "meals", mid)
 	return &responseObject, err
 }
 
