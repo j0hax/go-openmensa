@@ -22,20 +22,25 @@ package main
 
 import (
         "fmt"
-        "log"
-
         "github.com/j0hax/go-openmensa"
+        "log"
 )
 
-// openmensa.org ID for Contine Hannover
-const contine = 7
-
 func main() {
-        menu, err := openmensa.GetMeals(contine)
-
+        // Contine Hannover has ID 7
+        contine, err := openmensa.GetCanteen(7)
         if err != nil {
                 log.Fatal(err)
         }
+
+        // Retrieve the current menu
+        menu, err := contine.GetMeals()
+        if err != nil {
+                log.Fatal(err)
+        }
+
+        // Print out structured data
+        fmt.Printf("Today's menu for %s:\n", contine)
 
         for _, meal := range menu {
                 price := meal.Prices["students"]
