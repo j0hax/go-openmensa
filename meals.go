@@ -14,6 +14,8 @@ type Meal struct {
 	Id int `json:"id"`
 	// Name is the title of the meal.
 	Name string `json:"name"`
+	// Optional category metadata
+	Category string `json:"category"`
 	// Notes include extra information, such as allergens.
 	Notes []string `json:"notes"`
 	// Prices vary for different groups of patrons.
