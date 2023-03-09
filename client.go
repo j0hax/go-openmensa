@@ -14,7 +14,7 @@ import (
 var Endpoint = "https://openmensa.org/api/v2"
 
 // API User Endpoint
-const defaultUserAgent = "go-openmensa/0.3"
+const defaultUserAgent = "go-openmensa/0.4"
 
 // The client to use for HTTP requests
 var c = http.Client{Timeout: time.Second * 10}

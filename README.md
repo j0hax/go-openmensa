@@ -34,15 +34,15 @@ func main() {
         }
 
         // Retrieve the current menu
-        menu, err := contine.CurrentMeals()
+        menu, err := contine.CurrentMenu()
         if err != nil {
                 log.Fatal(err)
         }
 
         // Print out structured data
-        fmt.Printf("Today's menu for %s:\n", contine)
+        fmt.Printf("%s menu on %s:\n", contine.Name, menu.Day.Date)
 
-        for _, meal := range menu {
+        for _, meal := range menu.Meals {
                 price := meal.Prices["students"]
                 fmt.Printf("- %s (%0.2f€)\n", meal, price)
         }
