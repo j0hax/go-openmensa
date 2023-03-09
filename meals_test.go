@@ -4,25 +4,42 @@ import (
 	"testing"
 )
 
-func TestMeals(t *testing.T) {
+func TestCurrentMenu(t *testing.T) {
 	contine, err := GetCanteen(7)
 	if err != nil {
 		t.Error(err)
 	}
 
-	meals, day, err := contine.UpcomingMeals()
+	menu, err := contine.CurrentMenu()
 	if err != nil {
 		t.Error(err)
 	}
 
-	t.Logf("Next opening day: %s\n", day.Date)
+	t.Log(menu.Day.String())
 
-	for _, m := range meals {
+	// Ensure our meal isn't empty
+	for _, meal := range menu.Meals {
+		t.Logf("\t%s\n", meal)
+	}
+}
+
+func TestAllMenus(t *testing.T) {
+	contine, err := GetCanteen(7)
+	if err != nil {
+		t.Error(err)
+	}
+
+	menu, err := contine.AllMenus()
+	if err != nil {
+		t.Error(err)
+	}
+
+	for _, entry := range menu {
+		t.Log(entry.Day.String())
+
 		// Ensure our meal isn't empty
-		if len(m.Name) == 0 {
-			t.Errorf("Meal ID %d has empty name", m.Id)
+		for _, meal := range entry.Meals {
+			t.Logf("\t%s\n", meal)
 		}
-
-		t.Log(m)
 	}
 }

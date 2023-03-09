@@ -1,12 +1,13 @@
 package openmensa
 
 import (
-	"errors"
+	"encoding/json"
 	"strconv"
 	"time"
-
-	"golang.org/x/exp/slices"
 )
+
+// Date Format used by OpenMensa (simplified ISO 8601)
+const dateLayout = "2006-01-02"
 
 // Meal is the representation of a canteen's menu item.
 type Meal struct {
@@ -25,53 +26,85 @@ type Meal struct {
 	Prices map[string]float64 `json:"prices"`
 }
 
-// MealsOn returns returns all meals served by a canteen on a given date.
-func (c Canteen) MealsOn(date time.Time) ([]Meal, error) {
-	strDate := date.Format("2006-01-02")
-	var responseObject []Meal
+// Menu represents all meals served by a canteen on a given day.
+//
+// In German, this is the semantic equivalent to a "Speiseplan"
+type Menu struct {
+	Day   Day    `json:"date"`
+	Meals []Meal `json:"meals"`
+}
+
+// Custom unmarshaler to get around the inconsistency between
+// /canteens/{id}/days/{date}, which returns an object with two attributes, and
+// /canteens/{id}/meals, which returns two attributes and meals directly
+func (m *Menu) UnmarshalJSON(data []byte) error {
+	var interim struct {
+		Date   Opening `json:"date"`
+		Closed bool    `json:"closed"`
+		Meals  []Meal  `json:"meals"`
+	}
+
+	err := json.Unmarshal(data, &interim)
+	if err != nil {
+		return err
+	}
+
+	*m = Menu{
+		Day: Day{
+			Date:   interim.Date,
+			Closed: interim.Closed,
+		},
+		Meals: interim.Meals,
+	}
+
+	return nil
+}
+
+// MenuOn returns returns all meals served by a canteen on a given date.
+func (c Canteen) MenuOn(date time.Time) (*Menu, error) {
+	strDate := date.Format(dateLayout)
 	cid := strconv.Itoa(c.Id)
-	err := getUnmarshal(&responseObject, "canteens", cid, "days", strDate, "meals")
-	return responseObject, err
+
+	var dateResponse Day
+	err := getUnmarshal(&dateResponse, "canteens", cid, "days", strDate)
+	if err != nil {
+		return nil, err
+	}
+
+	var mList []Meal
+	err = getUnmarshal(&mList, "canteens", cid, "days", strDate, "meals")
+	if err != nil {
+		return nil, err
+	}
+
+	menu := Menu{
+		Day:   dateResponse,
+		Meals: mList,
+	}
+
+	return &menu, err
 }
 
-// CurrentMeals returns returns all meals served by a canteen on today's date.
-func (c Canteen) CurrentMeals() ([]Meal, error) {
+// CurrentMenu returns returns all meals served by a canteen on today's date.
+func (c Canteen) CurrentMenu() (*Menu, error) {
 	date := time.Now()
-	return c.MealsOn(date)
+	return c.MenuOn(date)
 }
 
-// UpcomingMeals returns all meals served by a canteen on the next opening date.
-func (c Canteen) UpcomingMeals() ([]Meal, *Day, error) {
-	// Get the opening dates
-	days, err := c.Days()
-	if err != nil {
-		return nil, nil, err
-	}
+// AllMenus returns all meals for all upcoming dates
+func (c Canteen) AllMenus() ([]Menu, error) {
+	var responseData []Menu
+	cid := strconv.Itoa(c.Id)
+	err := getUnmarshal(&responseData, "canteens", cid, "meals")
 
-	i := slices.IndexFunc(days, func(d Day) bool {
-		return !d.Closed
-	})
-
-	if i < 0 {
-		return nil, nil, errors.New("canteen is closed on all upcoming days")
-	}
-
-	firstOpening := days[i]
-	openingDate := time.Time(firstOpening.Date)
-
-	meals, err := c.MealsOn(openingDate)
-	if err != nil {
-		return nil, &firstOpening, err
-	}
-
-	return meals, &firstOpening, nil
+	return responseData, err
 }
 
 // Meal returns a specific meal.
 //
 // A single meal is identified by the day it is served on and its ID.
 func (c Canteen) Meal(date time.Time, mealId int) (*Meal, error) {
-	strDate := date.Format("2006-01-02")
+	strDate := date.Format(dateLayout)
 	var responseObject Meal
 	cid := strconv.Itoa(c.Id)
 	mid := strconv.Itoa(mealId)
