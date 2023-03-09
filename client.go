@@ -3,6 +3,7 @@ package openmensa
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -20,7 +21,6 @@ var c = http.Client{Timeout: time.Second * 10}
 
 // get is a wrapper for http.Get(), using the predifined endpoint and custom headers.
 func get(query url.Values, elem ...string) ([]byte, error) {
-
 	path, err := url.JoinPath(Endpoint, elem...)
 	if err != nil {
 		return nil, err
@@ -46,8 +46,14 @@ func get(query url.Values, elem ...string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	defer response.Body.Close()
+
+	// Check HTTP response code
+	if response.StatusCode >= 400 {
+		err = errors.New(response.Status)
+		return nil, err
+	}
+
 	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
