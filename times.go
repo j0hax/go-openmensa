@@ -11,9 +11,9 @@ import (
 type Opening time.Time
 
 // UnmarshalJSON parses a YYYY-MM-DD date to an Opening type.
-func (o *Opening) UnmarshalJSON(text []byte) error {
-	s := strings.Trim(string(text), "\"")
-	t, err := time.Parse("2006-01-02", string(s))
+func (o *Opening) UnmarshalJSON(data []byte) error {
+	s := strings.Trim(string(data), "\"")
+	t, err := time.Parse(dateLayout, string(s))
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func (o *Opening) UnmarshalJSON(text []byte) error {
 // String returns a human-readable representation of a canteen's opening status.
 func (o Opening) String() string {
 	t := time.Time(o)
-	return t.Format("2006-01-02")
+	return t.Format(dateLayout)
 }
 
 // Day represents a canteen's opening status.
@@ -59,7 +59,7 @@ func (c Canteen) Days() ([]Day, error) {
 // GetDay returns specific opening information of a given canteen on a given date.
 func (c Canteen) Day(date time.Time) (*Day, error) {
 	var responseObject Day
-	strDate := date.Format("2006-01-02")
+	strDate := date.Format(dateLayout)
 	cid := strconv.Itoa(c.Id)
 	err := getUnmarshal(&responseObject, "canteens", cid, "days", strDate)
 	return &responseObject, err
