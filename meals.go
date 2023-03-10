@@ -6,8 +6,10 @@ import (
 	"time"
 )
 
-// Date Format used by OpenMensa (simplified ISO 8601)
-const dateLayout = "2006-01-02"
+// Simplified ISO 8601 date layout used by OpenMensa.
+//
+// Can be used for Time.Format() et al.
+const DateLayout = "2006-01-02"
 
 // Meal is the representation of a canteen's menu item.
 type Meal struct {
@@ -62,7 +64,7 @@ func (m *Menu) UnmarshalJSON(data []byte) error {
 
 // MenuOn returns returns all meals served by a canteen on a given date.
 func (c Canteen) MenuOn(date time.Time) (*Menu, error) {
-	strDate := date.Format(dateLayout)
+	strDate := date.Format(DateLayout)
 	cid := strconv.Itoa(c.Id)
 
 	var dateResponse Day
@@ -104,7 +106,7 @@ func (c Canteen) AllMenus() ([]Menu, error) {
 //
 // A single meal is identified by the day it is served on and its ID.
 func (c Canteen) Meal(date time.Time, mealId int) (*Meal, error) {
-	strDate := date.Format(dateLayout)
+	strDate := date.Format(DateLayout)
 	var responseObject Meal
 	cid := strconv.Itoa(c.Id)
 	mid := strconv.Itoa(mealId)
