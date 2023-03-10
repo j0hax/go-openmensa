@@ -35,7 +35,7 @@ func get(query url.Values, elem ...string) ([]byte, error) {
 		url.RawQuery = query.Encode()
 	}
 
-	req, err := http.NewRequest("GET", url.String(), nil)
+	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
 	if err != nil {
 		return nil, err
 	}
