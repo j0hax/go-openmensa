@@ -28,6 +28,10 @@ type Meal struct {
 	Prices map[string]float64 `json:"prices"`
 }
 
+// UnmarshalJSON is a custom unmarshaller for Meals.
+// This function acts as a regular json.Unmarshal, but removes duplicate note entries.
+//
+// This function may be removed should the official OpenMensa API perform server-side duplicate handling one day.
 func (m *Meal) UnmarshalJSON(data []byte) error {
 	// To avoid infinite unmarshal recursions, a type alias is used.
 	// Big thanks to https://biscuit.ninja/posts/go-avoid-an-infitine-loop-with-custom-json-unmarshallers/
@@ -64,9 +68,11 @@ type Menu struct {
 	Meals []Meal `json:"meals"`
 }
 
-// Custom unmarshaler to get around the inconsistency between
+// Custom unmarshaller to get around the inconsistency between
 // /canteens/{id}/days/{date}, which returns an object with two attributes, and
 // /canteens/{id}/meals, which returns two attributes and meals directly
+//
+// This function may be removed should the official OpenMensa API return opening information as a single JSON object one day.
 func (m *Menu) UnmarshalJSON(data []byte) error {
 	var interim struct {
 		Date   Opening `json:"date"`
