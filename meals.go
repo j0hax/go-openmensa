@@ -28,6 +28,34 @@ type Meal struct {
 	Prices map[string]float64 `json:"prices"`
 }
 
+func (m *Meal) UnmarshalJSON(data []byte) error {
+	// To avoid infinite unmarshal recursions, a type alias is used.
+	// Big thanks to https://biscuit.ninja/posts/go-avoid-an-infitine-loop-with-custom-json-unmarshallers/
+	type TmpType Meal
+	var tmpMeal TmpType
+
+	err := json.Unmarshal(data, &tmpMeal)
+	if err != nil {
+		return err
+	}
+
+	// Convert from the temporary type to our regular struct
+	*m = Meal(tmpMeal)
+
+	// Remove duplicate notes
+	exists := make(map[string]bool, len(m.Notes))
+	new := []string{}
+	for _, item := range m.Notes {
+		if !exists[item] {
+			exists[item] = true
+			new = append(new, item)
+		}
+	}
+	m.Notes = new
+
+	return nil
+}
+
 // Menu represents all meals served by a canteen on a given day.
 //
 // In German, this is the semantic equivalent to a "Speiseplan"
