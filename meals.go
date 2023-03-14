@@ -98,14 +98,13 @@ func (m *Menu) UnmarshalJSON(data []byte) error {
 
 // MenuOn returns returns all meals served by a canteen on a given date.
 func (c Canteen) MenuOn(date time.Time) (*Menu, error) {
-	strDate := date.Format(DateLayout)
-	cid := strconv.Itoa(c.Id)
-
-	var dateResponse Day
-	err := getUnmarshal(&dateResponse, "canteens", cid, "days", strDate)
+	dateResponse, err := c.Day(date)
 	if err != nil {
 		return nil, err
 	}
+
+	strDate := date.Format(DateLayout)
+	cid := strconv.Itoa(c.Id)
 
 	var mList []Meal
 	err = getUnmarshal(&mList, "canteens", cid, "days", strDate, "meals")
@@ -114,7 +113,7 @@ func (c Canteen) MenuOn(date time.Time) (*Menu, error) {
 	}
 
 	menu := Menu{
-		Day:   dateResponse,
+		Day:   *dateResponse,
 		Meals: mList,
 	}
 
