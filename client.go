@@ -3,7 +3,7 @@ package openmensa
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -50,7 +50,7 @@ func get(query url.Values, elem ...string) ([]byte, error) {
 
 	// Check HTTP response code
 	if response.StatusCode >= 400 {
-		err = errors.New(response.Status)
+		err = fmt.Errorf("%s %s: %s", req.Method, req.URL, response.Status)
 		return nil, err
 	}
 

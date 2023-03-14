@@ -53,7 +53,11 @@ func (c Canteen) Days() ([]Day, error) {
 	var responseObject []Day
 	cid := strconv.Itoa(c.Id)
 	err := getUnmarshal(&responseObject, "canteens", cid, "days")
-	return responseObject, err
+	if err != nil {
+		return nil, fmt.Errorf("retrieve openings for canteen ID %d: %w", c.Id, err)
+	}
+
+	return responseObject, nil
 }
 
 // GetDay returns specific opening information of a given canteen on a given date.
@@ -62,5 +66,9 @@ func (c Canteen) Day(date time.Time) (*Day, error) {
 	strDate := date.Format(DateLayout)
 	cid := strconv.Itoa(c.Id)
 	err := getUnmarshal(&responseObject, "canteens", cid, "days", strDate)
-	return &responseObject, err
+	if err != nil {
+		return nil, fmt.Errorf("retrieve opening information for canteen ID %d on %s: %w", c.Id, strDate, err)
+	}
+
+	return &responseObject, nil
 }

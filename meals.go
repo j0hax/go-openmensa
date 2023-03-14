@@ -2,6 +2,7 @@ package openmensa
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -98,27 +99,26 @@ func (m *Menu) UnmarshalJSON(data []byte) error {
 
 // MenuOn returns returns all meals served by a canteen on a given date.
 func (c Canteen) MenuOn(date time.Time) (*Menu, error) {
-	strDate := date.Format(DateLayout)
-	cid := strconv.Itoa(c.Id)
-
-	var dateResponse Day
-	err := getUnmarshal(&dateResponse, "canteens", cid, "days", strDate)
+	dateResponse, err := c.Day(date)
 	if err != nil {
 		return nil, err
 	}
+
+	strDate := date.Format(DateLayout)
+	cid := strconv.Itoa(c.Id)
 
 	var mList []Meal
 	err = getUnmarshal(&mList, "canteens", cid, "days", strDate, "meals")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("retrieve menu for canteen ID %d on %s: %w", c.Id, strDate, err)
 	}
 
 	menu := Menu{
-		Day:   dateResponse,
+		Day:   *dateResponse,
 		Meals: mList,
 	}
 
-	return &menu, err
+	return &menu, nil
 }
 
 // CurrentMenu returns returns all meals served by a canteen on today's date.
@@ -132,6 +132,9 @@ func (c Canteen) AllMenus() ([]Menu, error) {
 	var responseData []Menu
 	cid := strconv.Itoa(c.Id)
 	err := getUnmarshal(&responseData, "canteens", cid, "meals")
+	if err != nil {
+		return nil, fmt.Errorf("retrieve menus for canteen ID %d: %w", c.Id, err)
+	}
 
 	return responseData, err
 }
@@ -145,7 +148,11 @@ func (c Canteen) Meal(date time.Time, mealId int) (*Meal, error) {
 	cid := strconv.Itoa(c.Id)
 	mid := strconv.Itoa(mealId)
 	err := getUnmarshal(&responseObject, "canteens", cid, "days", strDate, "meals", mid)
-	return &responseObject, err
+	if err != nil {
+		return nil, fmt.Errorf("retrieve meal ID %d served by canteen ID %d on %s: %w", mealId, c.Id, strDate, err)
+	}
+
+	return &responseObject, nil
 }
 
 // String returns a human-readable representation of a meal.
