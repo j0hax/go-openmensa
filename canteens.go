@@ -44,7 +44,7 @@ func AllCanteens() ([]Canteen, error) {
 		// Grab data with custom page query and unmarshal it
 		data, err := get(q, "canteens")
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("retrieve all canteens: %w", err)
 		}
 
 		err = json.Unmarshal(data, &canteens)
@@ -88,7 +88,7 @@ func CanteensNear(latitude, longitude, distance float64) ([]Canteen, error) {
 		// Grab data with custom page query and unmarshal it
 		data, err := get(q, "canteens")
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("retrieve canteens near [%f, %f]: %w", latitude, longitude, err)
 		}
 
 		err = json.Unmarshal(data, &canteens)
@@ -112,7 +112,10 @@ func CanteensNear(latitude, longitude, distance float64) ([]Canteen, error) {
 func GetCanteen(canteenId int) (*Canteen, error) {
 	var responseObject Canteen
 	err := getUnmarshal(&responseObject, "canteens", strconv.Itoa(canteenId))
-	return &responseObject, err
+	if err != nil {
+		return nil, fmt.Errorf("retrieve canteen with ID %d: %w", canteenId, err)
+	}
+	return &responseObject, nil
 }
 
 // GetCanteens retrieves multiple canteens specified by their IDs.

@@ -2,6 +2,7 @@ package openmensa
 
 import (
 	"testing"
+	"time"
 )
 
 func TestCurrentMenu(t *testing.T) {
@@ -41,5 +42,20 @@ func TestAllMenus(t *testing.T) {
 		for _, meal := range entry.Meals {
 			t.Logf("\t%s\n", meal)
 		}
+	}
+}
+
+func TestNonExistantMenu(t *testing.T) {
+	contine, err := GetCanteen(7)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = contine.MenuOn(time.Date(1, time.January, 1, 1, 1, 1, 1, time.Local))
+
+	t.Log(err)
+
+	if err == nil {
+		t.Fail()
 	}
 }
