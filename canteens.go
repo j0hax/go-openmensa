@@ -25,8 +25,8 @@ type Canteen struct {
 // String returns a human-readable representation of the canteen.
 //
 // Currently, this is simply the canteen's name.
-func (m Canteen) String() string {
-	return m.Name
+func (c Canteen) String() string {
+	return c.Name
 }
 
 // AllCanteens returns a list of all canteens and their metadata.

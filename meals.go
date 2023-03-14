@@ -98,7 +98,7 @@ func (m *Menu) UnmarshalJSON(data []byte) error {
 }
 
 // MenuOn returns returns all meals served by a canteen on a given date.
-func (c Canteen) MenuOn(date time.Time) (*Menu, error) {
+func (c *Canteen) MenuOn(date time.Time) (*Menu, error) {
 	dateResponse, err := c.Day(date)
 	if err != nil {
 		return nil, err
@@ -122,13 +122,13 @@ func (c Canteen) MenuOn(date time.Time) (*Menu, error) {
 }
 
 // CurrentMenu returns returns all meals served by a canteen on today's date.
-func (c Canteen) CurrentMenu() (*Menu, error) {
+func (c *Canteen) CurrentMenu() (*Menu, error) {
 	date := time.Now()
 	return c.MenuOn(date)
 }
 
 // AllMenus returns all meals for all upcoming dates
-func (c Canteen) AllMenus() ([]Menu, error) {
+func (c *Canteen) AllMenus() ([]Menu, error) {
 	var responseData []Menu
 	cid := strconv.Itoa(c.Id)
 	err := getUnmarshal(&responseData, "canteens", cid, "meals")
@@ -142,7 +142,7 @@ func (c Canteen) AllMenus() ([]Menu, error) {
 // Meal returns a specific meal.
 //
 // A single meal is identified by the day it is served on and its ID.
-func (c Canteen) Meal(date time.Time, mealId int) (*Meal, error) {
+func (c *Canteen) Meal(date time.Time, mealId int) (*Meal, error) {
 	strDate := date.Format(DateLayout)
 	var responseObject Meal
 	cid := strconv.Itoa(c.Id)
