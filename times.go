@@ -37,7 +37,7 @@ type Day struct {
 }
 
 // String returns a human-readable representation of a canteen's opening data.
-func (d *Day) String() string {
+func (d Day) String() string {
 	var desc string
 	if d.Closed {
 		desc = "Closed"
