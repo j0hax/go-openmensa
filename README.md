@@ -1,5 +1,5 @@
 # go-openmensa
-
+[![Go](https://github.com/j0hax/go-openmensa/actions/workflows/go.yml/badge.svg)](https://github.com/j0hax/go-openmensa/actions/workflows/go.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/j0hax/go-openmensa.svg)](https://pkg.go.dev/github.com/j0hax/go-openmensa)
 [![Go Report Card](https://goreportcard.com/badge/github.com/j0hax/go-openmensa)](https://goreportcard.com/report/github.com/j0hax/go-openmensa)
 
@@ -10,7 +10,7 @@ Go API for OpenMensa
 The `openmensa` module functions purely as a library with no executables. To use it in a project, run
 
 ```console
-go get github.com/j0hax/go-openmensa
+$ go get github.com/j0hax/go-openmensa
 ```
 
 ## Example
@@ -21,31 +21,30 @@ Following code snippet fetches today's menu and prices for a cafeteria in Hannov
 package main
 
 import (
-        "fmt"
-        "github.com/j0hax/go-openmensa"
-        "log"
+	"fmt"
+	"github.com/j0hax/go-openmensa"
+	"log"
 )
 
 func main() {
-        // Contine Hannover has ID 7
-        contine, err := openmensa.GetCanteen(7)
-        if err != nil {
-                log.Fatal(err)
-        }
+	// Contine Hannover has ID 7
+	contine, err := openmensa.GetCanteen(7)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-        // Retrieve the current menu
-        menu, err := contine.CurrentMenu()
-        if err != nil {
-                log.Fatal(err)
-        }
+	// Retrieve the current menu
+	menu, err := contine.CurrentMenu()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-        // Print out structured data
-        fmt.Printf("%s menu on %s:\n", contine.Name, menu.Day.Date)
-
-        for _, meal := range menu.Meals {
-                price := meal.Prices["students"]
-                fmt.Printf("- %s (%0.2f€)\n", meal, price)
-        }
+	// Print out structured data
+	fmt.Printf("%s: %s\n", contine.Name, menu.Day)
+	for _, meal := range menu.Meals {
+		price := meal.Prices["students"]
+		fmt.Printf("- %s (%0.2f€)\n", meal, price)
+	}
 }
 ```
 
