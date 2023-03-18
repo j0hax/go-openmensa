@@ -42,7 +42,7 @@ func AllCanteens() ([]Canteen, error) {
 		var canteens []Canteen
 
 		// Grab data with custom page query and unmarshal it
-		data, err := get(q, "canteens")
+		data, _, err := get(q, "canteens")
 		if err != nil {
 			return nil, fmt.Errorf("retrieve all canteens: %w", err)
 		}
@@ -86,7 +86,7 @@ func CanteensNear(latitude, longitude, distance float64) ([]Canteen, error) {
 		var canteens []Canteen
 
 		// Grab data with custom page query and unmarshal it
-		data, err := get(q, "canteens")
+		data, _, err := get(q, "canteens")
 		if err != nil {
 			return nil, fmt.Errorf("retrieve canteens near [%f, %f]: %w", latitude, longitude, err)
 		}
