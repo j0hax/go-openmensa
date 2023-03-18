@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -65,9 +66,15 @@ func get(query url.Values, elem ...string) ([]byte, http.Header, error) {
 // getUnmarshal GETs JSON data at the endpoint and unmarshals it into v
 func getUnmarshal(v any, elem ...string) error {
 	// Grab the data
-	data, err := get(nil, elem...)
+	data, hdr, err := get(nil, elem...)
 	if err != nil {
 		return err
+	}
+
+	// Ensure data is JSON
+	contentType := hdr.Get("content-type")
+	if !strings.Contains(contentType, "application/json") {
+		return fmt.Errorf("response does not appear to be JSON (content-type is \"%s\")", contentType)
 	}
 
 	// Unmarshal it
