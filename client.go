@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -20,15 +21,15 @@ const defaultUserAgent = "go-openmensa/0.4"
 var c = http.Client{Timeout: time.Second * 10}
 
 // get is a wrapper for http.Get(), using the predifined endpoint and custom headers.
-func get(query url.Values, elem ...string) ([]byte, error) {
+func get(query url.Values, elem ...string) ([]byte, http.Header, error) {
 	path, err := url.JoinPath(Endpoint, elem...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	url, err := url.Parse(path)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if query != nil {
@@ -37,37 +38,43 @@ func get(query url.Values, elem ...string) ([]byte, error) {
 
 	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	req.Header.Add("User-Agent", defaultUserAgent)
 
 	response, err := c.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer response.Body.Close()
 
 	// Check HTTP response code
 	if response.StatusCode >= 400 {
 		err = fmt.Errorf("%s %s: %s", req.Method, req.URL, response.Status)
-		return nil, err
+		return nil, nil, err
 	}
 
 	data, err := io.ReadAll(response.Body)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return data, nil
+	return data, response.Header, nil
 }
 
 // getUnmarshal GETs JSON data at the endpoint and unmarshals it into v
 func getUnmarshal(v any, elem ...string) error {
 	// Grab the data
-	data, err := get(nil, elem...)
+	data, hdr, err := get(nil, elem...)
 	if err != nil {
 		return err
+	}
+
+	// Ensure data is JSON
+	contentType := hdr.Get("content-type")
+	if !strings.Contains(contentType, "application/json") {
+		return fmt.Errorf("response does not appear to be JSON (content-type is \"%s\")", contentType)
 	}
 
 	// Unmarshal it
