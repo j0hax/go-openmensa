@@ -49,7 +49,7 @@ func (m *Meal) UnmarshalJSON(data []byte) error {
 
 	// Remove duplicate notes
 	exists := make(map[string]bool, len(m.Notes))
-	new := []string{}
+	new := make([]string, 0, len(m.Notes))
 	for _, item := range m.Notes {
 		if !exists[item] {
 			exists[item] = true
@@ -107,7 +107,7 @@ func (c *Canteen) MenuOn(date time.Time) (*Menu, error) {
 	strDate := date.Format(DateLayout)
 	cid := strconv.Itoa(c.Id)
 
-	var mList []Meal
+	mList := make([]Meal, 0, 10)
 	err = getUnmarshal(&mList, "canteens", cid, "days", strDate, "meals")
 	if err != nil {
 		return nil, fmt.Errorf("retrieve menu for canteen ID %d on %s: %w", c.Id, strDate, err)
@@ -129,7 +129,9 @@ func (c *Canteen) CurrentMenu() (*Menu, error) {
 
 // AllMenus returns all meals for all upcoming dates
 func (c *Canteen) AllMenus() ([]Menu, error) {
-	var responseData []Menu
+	// Preallocate enough for a week
+	responseData := make([]Menu, 0, 7)
+
 	cid := strconv.Itoa(c.Id)
 	err := getUnmarshal(&responseData, "canteens", cid, "meals")
 	if err != nil {

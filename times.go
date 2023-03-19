@@ -50,7 +50,7 @@ func (d Day) String() string {
 
 // Days returns upcoming open/closed dates of a canteen.
 func (c *Canteen) Days() ([]Day, error) {
-	var responseObject []Day
+	responseObject := make([]Day, 0, 7)
 	cid := strconv.Itoa(c.Id)
 	err := getUnmarshal(&responseObject, "canteens", cid, "days")
 	if err != nil {
