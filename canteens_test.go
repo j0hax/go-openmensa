@@ -42,3 +42,14 @@ func TestLocalCanteens(t *testing.T) {
 		t.Errorf("Expected %d canteens, got %d", expected, total)
 	}
 }
+
+func TestVariadicCanteens(t *testing.T) {
+	canteens, err := GetCanteens(6, 7, 8)
+	if err != nil {
+		t.Error(err)
+	}
+
+	for i, c := range canteens {
+		t.Logf("%d: %s [%f, %f]", i+1, c, c.Coordinates[0], c.Coordinates[1])
+	}
+}

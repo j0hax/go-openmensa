@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 // Canteen contains information associated with a specific canteen, cafe, cafeteria, etc.
@@ -29,39 +30,69 @@ func (c Canteen) String() string {
 	return c.Name
 }
 
-// AllCanteens returns a list of all canteens and their metadata.
-func AllCanteens() ([]Canteen, error) {
-	q := url.Values{}
-	page := 1
+// queryCanteens returns a list of all canteens and their metadata.
+//
+// The parameter q allows for specific tuning of pagination and other parameters:
+// For more information see https://docs.openmensa.org/api/v2/canteens/#list-params
+func queryCanteens(q url.Values) ([]Canteen, error) {
+	currentPage := 1
 
 	var allCanteens []Canteen
 
 	// Repeatedly query the next page until none are returned
 	for {
-		q.Set("page", strconv.Itoa(page))
-		var canteens []Canteen
+		q.Set("page", strconv.Itoa(currentPage))
 
-		// Grab data with custom page query and unmarshal it
-		data, _, err := get(q, "canteens")
+		// Grab data with custom page query
+		data, hdr, err := get(q, "canteens")
 		if err != nil {
 			return nil, fmt.Errorf("retrieve all canteens: %w", err)
 		}
 
+		// Preallocate main mensa list if needed
+		if len(allCanteens) == 0 {
+			size, err := strconv.Atoi(hdr.Get("x-total-count"))
+			if err != nil {
+				return nil, fmt.Errorf("could not determine total mensa count: %w", err)
+			}
+			allCanteens = make([]Canteen, 0, size)
+		}
+
+		// Preallocate current page of mensas
+		size, err := strconv.Atoi(hdr.Get("x-per-page"))
+		if err != nil {
+			return nil, fmt.Errorf("could not determine page size: %w", err)
+		}
+		canteens := make([]Canteen, 0, size)
+
+		// Marshal the current page
 		err = json.Unmarshal(data, &canteens)
 		if err != nil {
 			return nil, err
 		}
 
-		if len(canteens) == 0 {
-			break
+		// Check if we have reached the last page
+		totalPages, err := strconv.Atoi(hdr.Get("x-total-pages"))
+		if err != nil {
+			return nil, fmt.Errorf("could not determine total page count: %w", err)
 		}
 
 		// Save and continue to next page
-		page = page + 1
 		allCanteens = append(allCanteens, canteens...)
+		currentPage++
+
+		if currentPage > totalPages {
+			break
+		}
 	}
 
 	return allCanteens, nil
+}
+
+// AllCanteens returns all canteens listed in OpenMensa
+func AllCanteens() ([]Canteen, error) {
+	q := url.Values{}
+	return queryCanteens(q)
 }
 
 // CanteensNear returns canteens in the radius of the given latitude and longitude
@@ -76,36 +107,7 @@ func CanteensNear(latitude, longitude, distance float64) ([]Canteen, error) {
 	q.Set("near[lng]", lng)
 	q.Set("near[dist]", dist)
 
-	page := 1
-
-	var nearby []Canteen
-
-	// Repeatedly query the next page until none are returned
-	for {
-		q.Set("page", strconv.Itoa(page))
-		var canteens []Canteen
-
-		// Grab data with custom page query and unmarshal it
-		data, _, err := get(q, "canteens")
-		if err != nil {
-			return nil, fmt.Errorf("retrieve canteens near [%f, %f]: %w", latitude, longitude, err)
-		}
-
-		err = json.Unmarshal(data, &canteens)
-		if err != nil {
-			return nil, err
-		}
-
-		if len(canteens) == 0 {
-			break
-		}
-
-		// Save and continue to next page
-		page = page + 1
-		nearby = append(nearby, canteens...)
-	}
-
-	return nearby, nil
+	return queryCanteens(q)
 }
 
 // GetCanteen returns data about a specific canteen.
@@ -120,17 +122,18 @@ func GetCanteen(canteenId int) (*Canteen, error) {
 
 // GetCanteens retrieves multiple canteens specified by their IDs.
 func GetCanteens(canteenIds ...int) ([]Canteen, error) {
-	var canteens []Canteen
-	for _, id := range canteenIds {
-		canteen, err := GetCanteen(id)
-		if err != nil {
-			return nil, err
-		}
+	q := url.Values{}
 
-		canteens = append(canteens, *canteen)
+	// convert to string arraw
+	var stringIDs = make([]string, len(canteenIds))
+	for i := range canteenIds {
+		stringIDs[i] = strconv.Itoa(canteenIds[i])
 	}
 
-	return canteens, nil
+	idString := strings.Join(stringIDs, ",")
+	q.Set("ids", idString)
+
+	return queryCanteens(q)
 }
 
 // SearchCanteens returns a slice of canteens whose names match the given pattern
